@@ -1330,7 +1330,7 @@ function MobileMatchInput({ value, onChange, placeholder }) {
 
 export default function App() {
   const [lang, setLang] = useState("en");
-  const [filtersOpen, setFiltersOpen] = useState(false);
+  const [filtersOpen, setFiltersOpen] = useState(true);
   const [matchQuery, setMatchQuery] = useState("");
   const [dateQuery, setDateQuery] = useState("");
   const [timeQuery, setTimeQuery] = useState("");
