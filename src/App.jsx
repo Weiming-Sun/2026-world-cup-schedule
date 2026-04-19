@@ -113,21 +113,76 @@ const matches = [
 const roundOrder = ["Group Stage", "Round of 32", "Round of 16", "Quarterfinal", "Semifinal", "Third Place", "Final"];
 const unique = (arr) => Array.from(new Set(arr)).sort((a, b) => a.localeCompare(b));
 
-function MatchCard({ item }) {
+const roundMap = {
+  "Group Stage": "小组赛",
+  "Round of 32": "32强",
+  "Round of 16": "16强",
+  "Quarterfinal": "四分之一决赛",
+  "Semifinal": "半决赛",
+  "Third Place": "季军赛",
+  "Final": "决赛"
+};
+
+const t = {
+  en: {
+    title: "Match schedule for iPhone",
+    subtitle:
+      "Scroll, search, and filter by match, date, time, or stadium. Fully static and optimized for mobile.",
+    search: "Search team, stadium, city, date, or time",
+    dateFilter: "Date",
+    timeFilter: "Time",
+    venueFilter: "Stadium",
+    roundFilter: "Round",
+    allDates: "All dates",
+    allTimes: "All times",
+    allVenues: "All stadiums",
+    allRounds: "All rounds",
+    clear: "Clear filters",
+    noResults: "No matches found for the current filters.",
+    active: "active filter(s)",
+    scheduleTag: "Static 2026 World Cup schedule",
+    language: "中文"
+  },
+  zh: {
+    title: "世界杯赛程（手机）",
+    subtitle: "可按比赛、日期、时间或球场筛选。完全静态，适合手机浏览。",
+    search: "搜索球队、球场、城市、日期或时间",
+    dateFilter: "日期",
+    timeFilter: "时间",
+    venueFilter: "球场",
+    roundFilter: "阶段",
+    allDates: "所有日期",
+    allTimes: "所有时间",
+    allVenues: "所有球场",
+    allRounds: "所有阶段",
+    clear: "清除筛选",
+    noResults: "没有找到符合条件的比赛",
+    active: "个筛选条件",
+    scheduleTag: "2026 世界杯静态赛程",
+    language: "EN"
+  }
+};
+
+const getRoundLabel = (round, lang) => (lang === "zh" ? roundMap[round] || round : round);
+
+function MatchCard({ item, lang }) {
+  const displayRound = getRoundLabel(item.round, lang);
+  const displayTime = item.time || "TBD";
+
   return (
     <article className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm transition hover:shadow-md sm:p-5">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2 text-[11px] font-semibold tracking-wide text-slate-500">
             <span className="rounded-full bg-slate-100 px-2 py-1">#{item.id}</span>
-            <span className="rounded-full bg-indigo-50 px-2 py-1 text-indigo-700">{item.round}</span>
+            <span className="rounded-full bg-indigo-50 px-2 py-1 text-indigo-700">{displayRound}</span>
           </div>
           <h2 className="mt-3 text-base font-semibold leading-snug text-slate-900 sm:text-lg">{item.match}</h2>
         </div>
         <div className="shrink-0 rounded-2xl bg-slate-50 px-3 py-2 text-right">
           <div className="text-sm font-semibold text-slate-900">{item.date}</div>
           <div className="flex items-center justify-end gap-1 text-xs text-slate-500">
-            <Clock3 className="h-3.5 w-3.5" /> {item.time || "TBD"}
+            <Clock3 className="h-3.5 w-3.5" /> {displayTime}
           </div>
         </div>
       </div>
@@ -147,6 +202,7 @@ function MatchCard({ item }) {
 }
 
 export default function App() {
+  const [lang, setLang] = useState("en");
   const [query, setQuery] = useState("");
   const [date, setDate] = useState("all");
   const [time, setTime] = useState("all");
@@ -157,7 +213,10 @@ export default function App() {
   const venues = useMemo(() => unique(matches.map((m) => m.venue).filter(Boolean)), []);
   const times = useMemo(() => unique(matches.map((m) => m.time).filter(Boolean)), []);
   const rounds = useMemo(
-    () => unique(matches.map((m) => m.round).filter(Boolean)).sort((a, b) => roundOrder.indexOf(a) - roundOrder.indexOf(b)),
+    () =>
+      unique(matches.map((m) => m.round).filter(Boolean)).sort(
+        (a, b) => roundOrder.indexOf(a) - roundOrder.indexOf(b)
+      ),
     []
   );
 
@@ -183,71 +242,166 @@ export default function App() {
     setRound("all");
   };
 
-  const activeCount = [query, date, time, venue, round].filter((v) => v && v !== "all" && v !== "").length;
+  const activeCount = [query, date, time, venue, round].filter(
+    (v) => v && v !== "all" && v !== ""
+  ).length;
+
+  const isZh = lang === "zh";
 
   return (
-    <main className="min-h-screen bg-slate-50 text-slate-900">
-      <section className="mx-auto max-w-7xl px-3 py-4 sm:px-6 sm:py-8 lg:px-8">
+    <main className="min-h-screen bg-slate-50 text-slate-900 pb-8">
+      <section className="mx-auto max-w-7xl px-3 py-3 sm:px-6 sm:py-6 lg:px-8">
         <div className="overflow-hidden rounded-[2rem] bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-900 text-white shadow-2xl">
-          <div className="p-5 sm:p-6 md:p-8">
-            <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-[11px] font-medium text-white/80 backdrop-blur">
-              <SlidersHorizontal className="h-3.5 w-3.5" /> Static 2026 World Cup schedule
+          <div className="flex items-start justify-between gap-4 p-5 sm:p-6 md:p-8">
+            <div className="min-w-0 max-w-2xl">
+              <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-[11px] font-medium text-white/80 backdrop-blur">
+                <SlidersHorizontal className="h-3.5 w-3.5" /> {t[lang].scheduleTag}
+              </div>
+              <h1 className="mt-4 text-3xl font-bold tracking-tight sm:text-4xl">{t[lang].title}</h1>
+              <p className="mt-3 max-w-2xl text-sm leading-6 text-white/75 sm:text-base">
+                {t[lang].subtitle}
+              </p>
             </div>
-            <h1 className="mt-4 text-3xl font-bold tracking-tight sm:text-4xl">Match schedule for iPhone</h1>
-            <p className="mt-3 max-w-2xl text-sm leading-6 text-white/75 sm:text-base">
-              Scroll, search, and filter by match, date, time, or stadium. This is a static webpage, so it works cleanly on mobile and does not need an app install.
-            </p>
+
+            <button
+              onClick={() => setLang(isZh ? "en" : "zh")}
+              className="shrink-0 rounded-full border border-white/20 bg-white/10 px-3 py-2 text-sm font-semibold text-white shadow-sm backdrop-blur transition hover:bg-white/15 active:scale-[0.98]"
+              aria-label="Toggle language"
+              title={isZh ? "Switch to English" : "切换到中文"}
+            >
+              {t[lang].language}
+            </button>
           </div>
         </div>
 
-        <div className="mt-5 rounded-[2rem] border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
+        <div className="sticky top-0 z-20 mt-4 rounded-[2rem] border border-slate-200 bg-white/90 p-4 shadow-sm backdrop-blur-xl sm:p-5">
           <div className="grid gap-3 lg:grid-cols-[1.4fr,repeat(4,minmax(0,1fr))]">
-            <label className="relative block">
+            <label className="relative block lg:col-span-1">
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
               <input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search team, stadium, city, date, or time"
-                className="w-full rounded-2xl border border-slate-200 bg-slate-50 py-3 pl-10 pr-3 text-sm outline-none transition focus:border-indigo-400 focus:bg-white"
+                placeholder={t[lang].search}
+                className="w-full rounded-2xl border border-slate-200 bg-slate-50 py-3 pl-10 pr-10 text-sm outline-none transition focus:border-indigo-400 focus:bg-white"
               />
+              {query ? (
+                <button
+                  type="button"
+                  onClick={() => setQuery("")}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full p-1.5 text-slate-400 transition hover:bg-slate-100 hover:text-slate-600"
+                  aria-label="Clear search"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              ) : null}
             </label>
 
-            <select value={date} onChange={(e) => setDate(e.target.value)} className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-3 text-sm outline-none focus:border-indigo-400 focus:bg-white">
-              <option value="all">All dates</option>
-              {dates.map((d) => <option key={d} value={d}>{d}</option>)}
-            </select>
+            <div className="grid gap-3 sm:grid-cols-2 lg:col-span-4 lg:grid-cols-4">
+              <label className="block">
+                <span className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                  {t[lang].dateFilter}
+                </span>
+                <select
+                  value={date}
+                  onChange={(e) => setDate(e.target.value)}
+                  className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-3 py-3 text-sm outline-none transition focus:border-indigo-400 focus:bg-white"
+                >
+                  <option value="all">{t[lang].allDates}</option>
+                  {dates.map((d) => (
+                    <option key={d} value={d}>
+                      {d}
+                    </option>
+                  ))}
+                </select>
+              </label>
 
-            <select value={time} onChange={(e) => setTime(e.target.value)} className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-3 text-sm outline-none focus:border-indigo-400 focus:bg-white">
-              <option value="all">All times</option>
-              {times.map((t) => <option key={t} value={t}>{t}</option>)}
-            </select>
+              <label className="block">
+                <span className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                  {t[lang].timeFilter}
+                </span>
+                <select
+                  value={time}
+                  onChange={(e) => setTime(e.target.value)}
+                  className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-3 py-3 text-sm outline-none transition focus:border-indigo-400 focus:bg-white"
+                >
+                  <option value="all">{t[lang].allTimes}</option>
+                  {times.map((tm) => (
+                    <option key={tm} value={tm}>
+                      {tm}
+                    </option>
+                  ))}
+                </select>
+              </label>
 
-            <select value={venue} onChange={(e) => setVenue(e.target.value)} className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-3 text-sm outline-none focus:border-indigo-400 focus:bg-white">
-              <option value="all">All stadiums</option>
-              {venues.map((v) => <option key={v} value={v}>{v}</option>)}
-            </select>
+              <label className="block">
+                <span className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                  {t[lang].venueFilter}
+                </span>
+                <select
+                  value={venue}
+                  onChange={(e) => setVenue(e.target.value)}
+                  className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-3 py-3 text-sm outline-none transition focus:border-indigo-400 focus:bg-white"
+                >
+                  <option value="all">{t[lang].allVenues}</option>
+                  {venues.map((v) => (
+                    <option key={v} value={v}>
+                      {v}
+                    </option>
+                  ))}
+                </select>
+              </label>
 
-            <select value={round} onChange={(e) => setRound(e.target.value)} className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-3 text-sm outline-none focus:border-indigo-400 focus:bg-white lg:col-start-2">
-              <option value="all">All rounds</option>
-              {rounds.map((r) => <option key={r} value={r}>{r}</option>)}
-            </select>
+              <label className="block">
+                <span className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                  {t[lang].roundFilter}
+                </span>
+                <select
+                  value={round}
+                  onChange={(e) => setRound(e.target.value)}
+                  className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-3 py-3 text-sm outline-none transition focus:border-indigo-400 focus:bg-white"
+                >
+                  <option value="all">{t[lang].allRounds}</option>
+                  {rounds.map((r) => (
+                    <option key={r} value={r}>
+                      {getRoundLabel(r, lang)}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </div>
           </div>
 
-          <div className="mt-4 flex flex-wrap items-center gap-3">
-            <div className="text-sm text-slate-500">{activeCount} active filter{activeCount === 1 ? "" : "s"}</div>
-            <button onClick={clear} className="inline-flex items-center gap-2 rounded-full border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100">
-              <X className="h-4 w-4" /> Clear filters
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 pt-4">
+            <div className="text-sm text-slate-500">
+              {lang === "en" ? (
+                <>
+                  {activeCount} active filter{activeCount === 1 ? "" : "s"}
+                </>
+              ) : (
+                <>
+                  {activeCount}
+                  {t[lang].active}
+                </>
+              )}
+            </div>
+            <button
+              onClick={clear}
+              className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100 active:scale-[0.98]"
+            >
+              <X className="h-4 w-4" /> {t[lang].clear}
             </button>
           </div>
         </div>
 
         <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {filtered.map((item) => <MatchCard key={item.id} item={item} />)}
+          {filtered.map((item) => (
+            <MatchCard key={item.id} item={item} lang={lang} />
+          ))}
         </div>
 
         {filtered.length === 0 && (
           <div className="mt-10 rounded-[2rem] border border-dashed border-slate-300 bg-white p-10 text-center text-slate-500">
-            No matches found for the current filters.
+            {t[lang].noResults}
           </div>
         )}
       </section>
