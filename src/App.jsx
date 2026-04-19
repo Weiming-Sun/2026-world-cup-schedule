@@ -1394,15 +1394,16 @@ export default function App() {
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(16,185,129,0.22),_transparent_30%),radial-gradient(circle_at_bottom_right,_rgba(245,158,11,0.18),_transparent_28%),linear-gradient(180deg,#06111f_0%,#0b1b2f_42%,#10263b_100%)] text-slate-50">
       <div className="relative mx-auto flex min-h-screen w-full max-w-4xl flex-col">
-        <header className="sticky top-0 z-30 border-b border-white/10 bg-slate-950/90 backdrop-blur-xl">
-          <div className="px-4 py-3 sm:px-6">
-            <div className="flex items-center justify-between gap-3">
+        <header className="sticky top-0 z-30 border-b border-white/10 bg-slate-950/85 backdrop-blur-xl">
+          <div className="px-4 pb-3 pt-4 sm:px-6">
+            <div className="flex items-start justify-between gap-4">
               <div className="min-w-0">
-                <div className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-emerald-500 via-green-400 to-amber-400 px-3 py-1 text-[11px] font-semibold text-slate-950 shadow-lg shadow-emerald-500/20">
+                <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-emerald-500 via-green-400 to-amber-400 px-3 py-1 text-xs font-semibold text-slate-950 shadow-lg shadow-emerald-500/20">
                   <Trophy className="h-3.5 w-3.5" />
                   FIFA World Cup 2026
                 </div>
-                <h1 className="mt-2 text-lg font-semibold tracking-tight text-white sm:text-2xl">{copy.title}</h1>
+                <h1 className="text-2xl font-semibold tracking-tight text-white sm:text-3xl">{copy.title}</h1>
+                <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-200/80">{copy.subtitle}</p>
               </div>
 
               <div className="shrink-0 rounded-2xl border border-white/10 bg-white/10 p-1 shadow-lg shadow-black/20 backdrop-blur">
@@ -1427,6 +1428,22 @@ export default function App() {
                   </button>
                 </div>
               </div>
+            </div>
+
+            <div className="mt-3 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/8 px-3 py-3">
+              <div className="text-sm text-white/75">
+                {activeFilterCount > 0
+                  ? `${activeFilterCount} ${lang === "en" ? "active filter(s)" : "个筛选已启用"}`
+                  : copy.filtersCollapsed}
+              </div>
+              <button
+                type="button"
+                onClick={() => setFiltersOpen((prev) => !prev)}
+                className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-slate-950/35 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-950/55"
+              >
+                {filtersOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                {filtersOpen ? copy.hideFilters : copy.showFilters}
+              </button>
             </div>
           </div>
         </header>
