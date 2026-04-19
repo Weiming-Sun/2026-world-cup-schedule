@@ -1,67 +1,152 @@
 # ⚽ 2026 World Cup Schedule App
 
-A mobile-first, bilingual (EN / 简体中文) World Cup schedule app built with React + Vite + Tailwind CSS.
+![React](https://img.shields.io/badge/React-18-blue)
+![Vite](https://img.shields.io/badge/Vite-fast-purple)
+![Tailwind](https://img.shields.io/badge/TailwindCSS-modern-38B2AC)
+![License](https://img.shields.io/badge/License-Personal-lightgrey)
+
+A **mobile-first, bilingual (EN / 简体中文)** World Cup schedule web app with a bold stadium-style UI.
 
 ---
 
-## 🚀 Features
-- 🌍 Bilingual UI (EN / 中文)
+## 🚀 Live Demo (optional)
+
+_Add your deployed link here_
+
+---
+
+## ✨ Features
+
+- 🌍 Language toggle (EN / 中文)
 - 📅 Full 104-match schedule
-- 🔍 Smart filters (search, date, time, venue, round)
-- 🎛 iOS-style bottom sheet filters
-- 🎵 Streaming music player (YouTube)
-- 🎨 Stadium-style background + glass UI
+- 🔍 Smart filtering system
+- 🎛 iOS-style bottom sheet UX
+- 🎵 Embedded World Cup theme music
+- 🎨 Stadium-themed background + glass UI
+- ⚡ Fully static (no backend)
 
 ---
 
-## ▶️ Getting Started
+## 🧱 Tech Stack
 
-npm install  
-npm run dev  
-
-Open: http://localhost:5173
+- React (Vite)
+- Tailwind CSS
+- lucide-react
 
 ---
 
-## 🎵 Music
+## 📂 Project Structure
+
+```
+2026-world-cup-schedule/
+├── src/
+│   └── App.jsx
+├── public/
+│   └── worldcup-bg.png
+├── docs/
+│   └── prompt.md
+├── README.md
+└── package.json
+```
+
+---
+
+## ▶️ Local Development
+
+```bash
+npm install
+npm run dev
+```
+
+Open:
+
+```
+http://localhost:5173
+```
+
+---
+
+## 🌐 Deployment
+
+### Vercel
+
+```bash
+npm install -g vercel
+vercel
+```
+
+### Netlify
+
+- Drag & drop `dist/` after:
+```bash
+npm run build
+```
+
+---
+
+## 🎵 Music Player
 
 Uses YouTube embed:
 
+```js
 const STREAM_EMBED_URL = "https://www.youtube.com/embed/dZDj2CnG5dE";
+```
+
+⚠️ Autoplay with sound is blocked by browsers.
 
 ---
 
 ## 🖼 Background
 
-Place image in:
+Place file:
 
+```
 /public/worldcup-bg.png
+```
 
 ---
 
-## 🛠 Updating Data
+## 🛠 Updating Schedule
 
-Edit matches array in App.jsx only.
+Update ONLY:
+
+```
+matches[] in App.jsx
+```
 
 ---
 
-## 📄 Docs
+## 📄 Prompt System
 
-See: docs/prompt.md
+Located in:
+
+```
+docs/prompt.md
+```
+
+Used to regenerate:
+- Match data
+- UI
 
 ---
 
 ## ⚠️ Notes
 
-- Fully static app
-- No backend / API
-- Mobile-first design
+- Static app (no API)
+- Optimized for mobile UX
+- Designed for future updates
 
 ---
 
-## ✨ Future
+## 🔮 Future Improvements
 
 - API integration
 - Favorites
-- PWA
+- Timezone auto-detect
+- PWA support
 
+---
+
+## 🏁 License
+
+Personal / educational use only.
