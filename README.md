@@ -1,16 +1,67 @@
-# React + Vite
+# ⚽ 2026 World Cup Schedule App
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A mobile-first, bilingual (EN / 简体中文) World Cup schedule app built with React + Vite + Tailwind CSS.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## 🚀 Features
+- 🌍 Bilingual UI (EN / 中文)
+- 📅 Full 104-match schedule
+- 🔍 Smart filters (search, date, time, venue, round)
+- 🎛 iOS-style bottom sheet filters
+- 🎵 Streaming music player (YouTube)
+- 🎨 Stadium-style background + glass UI
 
-## React Compiler
+---
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## ▶️ Getting Started
 
-## Expanding the ESLint configuration
+npm install  
+npm run dev  
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+Open: http://localhost:5173
+
+---
+
+## 🎵 Music
+
+Uses YouTube embed:
+
+const STREAM_EMBED_URL = "https://www.youtube.com/embed/dZDj2CnG5dE";
+
+---
+
+## 🖼 Background
+
+Place image in:
+
+/public/worldcup-bg.png
+
+---
+
+## 🛠 Updating Data
+
+Edit matches array in App.jsx only.
+
+---
+
+## 📄 Docs
+
+See: docs/prompt.md
+
+---
+
+## ⚠️ Notes
+
+- Fully static app
+- No backend / API
+- Mobile-first design
+
+---
+
+## ✨ Future
+
+- API integration
+- Favorites
+- PWA
+
