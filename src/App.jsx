@@ -197,9 +197,17 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#050805] text-white">
-      <div className="fixed inset-0 -z-10 bg-[radial-gradient(circle_at_top,rgba(34,197,94,0.18),transparent_35%),linear-gradient(180deg,#030503_0%,#05110b_45%,#020202_100%)]" />
-      <div className="fixed inset-0 -z-10 opacity-40 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:22px_22px]" />
+    <div
+      className="min-h-screen text-white"
+      style={{
+        backgroundImage: "url('/worldcup-bg.png')",
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundAttachment: 'fixed'
+      }}
+    >
+      <div className="fixed inset-0 -z-10 bg-[linear-gradient(180deg,rgba(0,0,0,0.75),rgba(0,0,0,0.85))]" />
+      <div className="fixed inset-0 -z-10 opacity-30 bg-[radial-gradient(circle_at_center,rgba(34,197,94,0.25),transparent_60%)]" />
 
       <header className="sticky top-0 z-30 border-b border-white/10 bg-black/45 backdrop-blur-xl">
         <div className="mx-auto flex max-w-4xl items-center justify-between px-4 py-3">
