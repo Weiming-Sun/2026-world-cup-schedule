@@ -3,13 +3,18 @@ import {
   Globe,
   Filter,
   X,
-  ChevronDown,
   Search,
   CalendarDays,
   Clock3,
   MapPin,
   Trophy,
+  Play,
+  Radio,
 } from "lucide-react";
+
+// Put a direct embeddable streaming URL here (official player/embed or direct stream URL).
+// Leave empty to hide the player.
+const STREAM_EMBED_URL = "https://www.youtube.com/embed/dZDj2CnG5dE";
 
 const matches = [
   { id: 1, date: "2026-06-11", time_pt: "12:00 PM", venue: "Estadio Azteca", city: "Mexico City", round_en: "Group Stage", round_zh: "小组赛", match_en: "Mexico vs South Africa", match_zh: "墨西哥 对阵 南非" },
@@ -149,6 +154,7 @@ function App() {
   const [time, setTime] = useState("");
   const [venue, setVenue] = useState("");
   const [round, setRound] = useState("");
+  const [musicOpen, setMusicOpen] = useState(false);
 
   const rounds = useMemo(() => {
     const map = new Map();
@@ -201,14 +207,21 @@ function App() {
             <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-emerald-400/30 bg-emerald-400/10 shadow-[0_0_25px_rgba(34,197,94,0.18)]">
               <Trophy className="h-5 w-5 text-emerald-300" />
             </div>
-            <div className="leading-tight">
-              <div className="text-[17px] font-semibold tracking-tight">
-                {lang === "zh" ? "2026世界杯" : "2026 World Cup"}
-              </div>
+            <div className="text-[17px] font-semibold tracking-tight">
+              {lang === "zh" ? "2026世界杯" : "2026 World Cup"}
             </div>
           </div>
 
           <div className="flex items-center gap-2">
+            {STREAM_EMBED_URL ? (
+              <button
+                onClick={() => setMusicOpen((v) => !v)}
+                className="inline-flex items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-4 py-2 text-sm font-medium text-emerald-100 shadow-lg shadow-emerald-500/10 backdrop-blur-md active:scale-[0.98]"
+              >
+                <Radio className="h-4 w-4" />
+                {lang === "zh" ? "音乐" : "Music"}
+              </button>
+            ) : null}
             <button
               onClick={() => setFiltersOpen(true)}
               className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/8 px-4 py-2 text-sm font-medium text-white/90 shadow-lg shadow-black/20 backdrop-blur-md active:scale-[0.98]"
@@ -258,6 +271,31 @@ function App() {
           </div>
         </section>
 
+        {musicOpen && STREAM_EMBED_URL ? (
+          <section className="mb-4 overflow-hidden rounded-3xl border border-emerald-400/20 bg-black/35 shadow-2xl shadow-black/25 backdrop-blur-xl">
+            <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
+              <div className="flex items-center gap-2 text-sm font-medium text-emerald-100">
+                <Play className="h-4 w-4" />
+                {lang === "zh" ? "流媒体播放" : "Streaming player"}
+              </div>
+              <button onClick={() => setMusicOpen(false)} className="rounded-full border border-white/10 bg-white/6 p-2 text-white/80">
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            <div className="p-3">
+              <iframe
+                title="Streaming Music"
+                src={STREAM_EMBED_URL}
+                className="h-24 w-full rounded-2xl border border-white/10"
+                allow="autoplay; encrypted-media; clipboard-write; fullscreen"
+              />
+              <p className="mt-2 text-xs text-white/55">
+                {lang === "zh" ? "请使用可嵌入的官方流媒体链接。" : "Use a legal embeddable streaming link here."}
+              </p>
+            </div>
+          </section>
+        ) : null}
+
         <div className="space-y-5">
           {grouped.map(([day, items]) => (
             <section key={day}>
@@ -269,15 +307,10 @@ function App() {
 
               <div className="space-y-3">
                 {items.map((m) => (
-                  <article
-                    key={m.id}
-                    className="group rounded-3xl border border-white/10 bg-white/6 p-4 shadow-xl shadow-black/25 backdrop-blur-xl transition hover:border-emerald-400/25 hover:bg-white/8"
-                  >
+                  <article key={m.id} className="group rounded-3xl border border-white/10 bg-white/6 p-4 shadow-xl shadow-black/25 backdrop-blur-xl transition hover:border-emerald-400/25 hover:bg-white/8">
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
-                        <div className="text-[15px] font-semibold tracking-tight text-white">
-                          {lang === "zh" ? m.match_zh : m.match_en}
-                        </div>
+                        <div className="text-[15px] font-semibold tracking-tight text-white">{lang === "zh" ? m.match_zh : m.match_en}</div>
                         <div className="mt-1 inline-flex rounded-full border border-emerald-400/20 bg-emerald-400/10 px-2.5 py-1 text-[11px] font-medium text-emerald-100">
                           {lang === "zh" ? m.round_zh : m.round_en}
                         </div>
@@ -285,7 +318,7 @@ function App() {
                       <div className="rounded-2xl border border-white/10 bg-black/25 px-3 py-2 text-right">
                         <div className="flex items-center gap-2 text-xs text-white/55">
                           <Clock3 className="h-3.5 w-3.5" />
-                          {lang === "zh" ? "PT" : "PT"}
+                          PT
                         </div>
                         <div className="mt-1 text-sm font-semibold text-amber-200">{m.time_pt || "TBD"}</div>
                       </div>
@@ -314,37 +347,16 @@ function App() {
         </div>
       </main>
 
-      <div
-        className={cx(
-          "fixed inset-0 z-40 transition",
-          filtersOpen ? "pointer-events-auto" : "pointer-events-none"
-        )}
-      >
-        <div
-          className={cx(
-            "absolute inset-0 bg-black/55 backdrop-blur-sm transition-opacity",
-            filtersOpen ? "opacity-100" : "opacity-0"
-          )}
-          onClick={() => setFiltersOpen(false)}
-        />
+      <div className={cx("fixed inset-0 z-40 transition", filtersOpen ? "pointer-events-auto" : "pointer-events-none")}>
+        <div className={cx("absolute inset-0 bg-black/55 backdrop-blur-sm transition-opacity", filtersOpen ? "opacity-100" : "opacity-0")} onClick={() => setFiltersOpen(false)} />
 
-        <div
-          className={cx(
-            "absolute bottom-0 left-0 right-0 mx-auto w-full max-w-4xl rounded-t-[28px] border border-white/10 bg-[#07120b]/95 shadow-[0_-20px_60px_rgba(0,0,0,0.55)] backdrop-blur-2xl transition-transform duration-300",
-            filtersOpen ? "translate-y-0" : "translate-y-full"
-          )}
-        >
+        <div className={cx("absolute bottom-0 left-0 right-0 mx-auto w-full max-w-4xl rounded-t-[28px] border border-white/10 bg-[#07120b]/95 shadow-[0_-20px_60px_rgba(0,0,0,0.55)] backdrop-blur-2xl transition-transform duration-300", filtersOpen ? "translate-y-0" : "translate-y-full")}>
           <div className="mx-auto flex max-w-4xl items-center justify-between border-b border-white/10 px-4 py-4">
             <div>
               <div className="text-base font-semibold">{lang === "zh" ? "筛选" : "Filters"}</div>
-              <div className="text-xs text-white/55">
-                {lang === "zh" ? "细化搜索结果" : "Refine the schedule"}
-              </div>
+              <div className="text-xs text-white/55">{lang === "zh" ? "细化搜索结果" : "Refine the schedule"}</div>
             </div>
-            <button
-              onClick={() => setFiltersOpen(false)}
-              className="rounded-full border border-white/10 bg-white/6 p-2 text-white/80"
-            >
+            <button onClick={() => setFiltersOpen(false)} className="rounded-full border border-white/10 bg-white/6 p-2 text-white/80">
               <X className="h-5 w-5" />
             </button>
           </div>
@@ -390,24 +402,16 @@ function App() {
                 >
                   <option value="">{lang === "zh" ? "全部轮次" : "All rounds"}</option>
                   {rounds.map(([en, zh]) => (
-                    <option key={en} value={en}>
-                      {lang === "zh" ? zh : en}
-                    </option>
+                    <option key={en} value={en}>{lang === "zh" ? zh : en}</option>
                   ))}
                 </select>
               </Field>
 
               <div className="flex gap-3 pt-2">
-                <button
-                  onClick={clearFilters}
-                  className="flex-1 rounded-2xl border border-white/10 bg-white/6 px-4 py-3 font-medium text-white/85"
-                >
+                <button onClick={clearFilters} className="flex-1 rounded-2xl border border-white/10 bg-white/6 px-4 py-3 font-medium text-white/85">
                   {lang === "zh" ? "清除" : "Clear"}
                 </button>
-                <button
-                  onClick={() => setFiltersOpen(false)}
-                  className="flex-1 rounded-2xl bg-gradient-to-r from-emerald-400 to-lime-300 px-4 py-3 font-semibold text-black shadow-lg shadow-emerald-500/20"
-                >
+                <button onClick={() => setFiltersOpen(false)} className="flex-1 rounded-2xl bg-gradient-to-r from-emerald-400 to-lime-300 px-4 py-3 font-semibold text-black shadow-lg shadow-emerald-500/20">
                   {lang === "zh" ? "完成" : "Done"}
                 </button>
               </div>
