@@ -1,9 +1,10 @@
+
 import React, { useMemo, useState } from "react";
 import {
   CalendarDays,
   Clock3,
   Filter,
-  Languages,
+  Globe,
   MapPin,
   RefreshCcw,
   Trophy,
@@ -1395,10 +1396,19 @@ export default function App() {
     <div className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(16,185,129,0.22),_transparent_30%),radial-gradient(circle_at_bottom_right,_rgba(245,158,11,0.18),_transparent_28%),linear-gradient(180deg,#06111f_0%,#0b1b2f_42%,#10263b_100%)] text-slate-50">
       <div className="relative mx-auto flex min-h-screen w-full max-w-4xl flex-col">
         <header className="sticky top-0 z-30 border-b border-white/10 bg-slate-950/90 backdrop-blur-xl">
-          <div className="px-4 py-3 sm:px-6">
+          <div className="flex items-center justify-between px-4 py-3 sm:px-6">
             <h1 className="text-xl font-semibold tracking-tight text-white">
               {lang === "en" ? "2026 World Cup" : "2026世界杯"}
             </h1>
+            <button
+              type="button"
+              onClick={() => setLang(lang === "en" ? "zh" : "en")}
+              className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-white/10 text-white shadow-lg shadow-black/20 transition hover:bg-white/15 active:scale-95"
+              aria-label={lang === "en" ? "Switch to Chinese" : "切换到英语"}
+              title={lang === "en" ? "Switch to Chinese" : "切换到英语"}
+            >
+              <Globe className="h-5 w-5" />
+            </button>
           </div>
         </header>
 
@@ -1424,30 +1434,6 @@ export default function App() {
 
             {filtersOpen ? (
               <div className="border-t border-white/10 px-4 pb-4 pt-4">
-                <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/10 bg-slate-950/30 p-2">
-                  <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-white/60">
-                    <Languages className="h-4 w-4 text-emerald-300" />
-                    {copy.language}
-                  </div>
-                  <div className="flex items-center gap-1 rounded-2xl border border-white/10 bg-white/10 p-1">
-                    <button
-                      type="button"
-                      onClick={() => setLang("en")}
-                      className={`rounded-xl px-3 py-2 text-sm font-medium transition ${lang === "en" ? "bg-emerald-400 text-slate-950 shadow-sm" : "text-white/60"}`}
-                      aria-pressed={lang === "en"}
-                    >
-                      {copy.english}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setLang("zh")}
-                      className={`rounded-xl px-3 py-2 text-sm font-medium transition ${lang === "zh" ? "bg-amber-400 text-slate-950 shadow-sm" : "text-white/60"}`}
-                      aria-pressed={lang === "zh"}
-                    >
-                      {copy.chinese}
-                    </button>
-                  </div>
-                </div>
 
                 <div className="grid gap-4">
                   <div className="sm:hidden">
