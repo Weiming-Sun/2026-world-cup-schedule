@@ -7,6 +7,8 @@ import {
   MapPin,
   RefreshCcw,
   Trophy,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 
 const schedule = [
@@ -1180,7 +1182,7 @@ const roundLabels = {
 const ui = {
   en: {
     title: "2026 FIFA World Cup Schedule",
-    subtitle: "Static bilingual schedule with filters. Times are shown in Pacific Time (PT).",
+    subtitle: "Static bilingual schedule. Times are shown in Pacific Time (PT).",
     language: "Language",
     english: "English",
     chinese: "Simplified Chinese",
@@ -1200,10 +1202,18 @@ const ui = {
     allRounds: "All rounds",
     cards: "matches",
     pt: "PT",
+    showFilters: "Show filters",
+    hideFilters: "Hide filters",
+    filtersCollapsed: "Filters are hidden to save space.",
+    quickFilters: "Quick chips",
+    allDates: "All dates",
+    allTimes: "All times",
+    allVenues: "All venues",
+    allMatches: "All matches",
   },
   zh: {
     title: "2026年国际足联世界杯赛程",
-    subtitle: "静态双语赛程表，支持筛选。时间均为太平洋时间（PT）。",
+    subtitle: "静态双语赛程表，时间均为太平洋时间（PT）。",
     language: "语言",
     english: "英文",
     chinese: "简体中文",
@@ -1223,6 +1233,14 @@ const ui = {
     allRounds: "全部阶段",
     cards: "场比赛",
     pt: "PT",
+    showFilters: "展开筛选",
+    hideFilters: "收起筛选",
+    filtersCollapsed: "筛选已收起，以节省页面空间。",
+    quickFilters: "快捷标签",
+    allDates: "全部日期",
+    allTimes: "全部时间",
+    allVenues: "全部场馆",
+    allMatches: "全部比赛",
   },
 };
 
@@ -1232,14 +1250,87 @@ function normalize(value) {
 
 function RoundBadge({ roundEn, lang }) {
   return (
-    <span className="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">
+    <span className="inline-flex items-center rounded-full bg-white/12 px-3 py-1 text-xs font-medium text-white/85 ring-1 ring-white/10">
       {roundLabels[lang][roundEn] ?? roundEn}
     </span>
   );
 }
 
+function FieldLabel({ children }) {
+  return <span className="text-xs font-medium uppercase tracking-wide text-white/60">{children}</span>;
+}
+
+function DesktopSelect({ icon: Icon, value, onChange, options, placeholder }) {
+  return (
+    <div className="relative">
+      <Icon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-emerald-300" />
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="w-full appearance-none rounded-2xl border border-white/10 bg-slate-950/40 py-3 pl-10 pr-10 text-sm text-white outline-none ring-0 transition focus:border-emerald-400 focus:bg-slate-950/70 focus:ring-2 focus:ring-emerald-400/30"
+      >
+        <option value="">{placeholder}</option>
+        {options.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+      <svg className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/45" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+        <path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    </div>
+  );
+}
+
+function MobileChipGroup({ label, value, onChange, options, allLabel }) {
+  return (
+    <div className="grid gap-2">
+      <FieldLabel>{label}</FieldLabel>
+      <div className="flex gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <button
+          type="button"
+          onClick={() => onChange("")}
+          className={`shrink-0 rounded-full px-3 py-2 text-xs font-semibold transition ring-1 ${
+            value === "" ? "bg-emerald-400 text-slate-950 ring-emerald-200" : "bg-white/8 text-white/75 ring-white/10"
+          }`}
+        >
+          {allLabel}
+        </button>
+        {options.map((option) => (
+          <button
+            key={option.value}
+            type="button"
+            onClick={() => onChange(option.value)}
+            className={`shrink-0 rounded-full px-3 py-2 text-xs font-semibold transition ring-1 ${
+              value === option.value ? "bg-amber-400 text-slate-950 ring-amber-200" : "bg-white/8 text-white/75 ring-white/10"
+            }`}
+          >
+            {option.label}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function MobileMatchInput({ value, onChange, placeholder }) {
+  return (
+    <div className="grid gap-2">
+      <FieldLabel>Match</FieldLabel>
+      <input
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        className="w-full rounded-2xl border border-white/10 bg-slate-950/40 px-4 py-3 text-sm text-white outline-none ring-0 transition placeholder:text-white/35 focus:border-emerald-400 focus:bg-slate-950/70 focus:ring-2 focus:ring-emerald-400/30"
+      />
+    </div>
+  );
+}
+
 export default function App() {
   const [lang, setLang] = useState("en");
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const [matchQuery, setMatchQuery] = useState("");
   const [dateQuery, setDateQuery] = useState("");
   const [timeQuery, setTimeQuery] = useState("");
@@ -1250,13 +1341,12 @@ export default function App() {
 
   const matches = useMemo(() => schedule, []);
   const dates = useMemo(() => Array.from(new Set(schedule.map((item) => item.date))).sort(), []);
-  const times = useMemo(() => Array.from(new Set(schedule.map((item) => item.time_pt))).sort((a, b) => a.localeCompare(b, undefined, { numeric: true })), []);
+  const times = useMemo(
+    () => Array.from(new Set(schedule.map((item) => item.time_pt))).sort((a, b) => a.localeCompare(b, undefined, { numeric: true })),
+    []
+  );
   const venues = useMemo(() => Array.from(new Set(schedule.map((item) => item.venue))).sort((a, b) => a.localeCompare(b)), []);
-
-  const rounds = useMemo(() => {
-    const unique = Array.from(new Set(schedule.map((item) => item.round_en)));
-    return unique;
-  }, []);
+  const rounds = useMemo(() => Array.from(new Set(schedule.map((item) => item.round_en))), []);
 
   const filteredSchedule = useMemo(() => {
     const mq = normalize(matchQuery);
@@ -1267,13 +1357,15 @@ export default function App() {
 
     return schedule.filter((item) => {
       const matchText = normalize(String(item.id));
+      const matchEnglish = normalize(item.match_en);
+      const matchChinese = normalize(item.match_zh);
       const dateText = normalize(item.date);
       const timeText = normalize(item.time_pt);
       const venueText = normalize(item.venue);
       const cityText = normalize(item.city);
       const roundText = normalize(item.round_en);
 
-      const matchOk = !mq || matchText === mq;
+      const matchOk = !mq || matchText === mq || matchEnglish.includes(mq) || matchChinese.includes(mq);
       const dateOk = !dq || dateText === dq;
       const timeOk = !tq || timeText === tq;
       const venueOk = !vq || venueText === vq || cityText === vq;
@@ -1291,11 +1383,19 @@ export default function App() {
     setRoundQuery("");
   };
 
+  const activeFilterCount = [matchQuery, dateQuery, timeQuery, venueQuery, roundQuery].filter(Boolean).length;
+
+  const mobileDateOptions = dates.map((date) => ({ value: date, label: date }));
+  const mobileTimeOptions = times.map((time) => ({ value: time, label: time }));
+  const mobileVenueOptions = venues.map((venue) => ({ value: venue, label: venue }));
+  const mobileRoundOptions = rounds.map((round) => ({ value: round, label: roundLabels[lang][round] ?? round }));
+  const desktopMatchOptions = matches.map((item) => ({ value: String(item.id), label: lang === "en" ? item.match_en : item.match_zh }));
+
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(16,185,129,0.22),_transparent_32%),radial-gradient(circle_at_bottom_right,_rgba(245,158,11,0.18),_transparent_28%),linear-gradient(180deg,#06111f_0%,#0b1b2f_45%,#10263b_100%)] text-slate-50">
+    <div className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(16,185,129,0.22),_transparent_30%),radial-gradient(circle_at_bottom_right,_rgba(245,158,11,0.18),_transparent_28%),linear-gradient(180deg,#06111f_0%,#0b1b2f_42%,#10263b_100%)] text-slate-50">
       <div className="relative mx-auto flex min-h-screen w-full max-w-4xl flex-col">
-        <header className="sticky top-0 z-20 border-b border-white/10 bg-slate-950/70 backdrop-blur-xl">
-          <div className="px-4 pb-4 pt-5 sm:px-6">
+        <header className="sticky top-0 z-30 border-b border-white/10 bg-slate-950/85 backdrop-blur-xl">
+          <div className="px-4 pb-3 pt-4 sm:px-6">
             <div className="flex items-start justify-between gap-4">
               <div className="min-w-0">
                 <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-emerald-500 via-green-400 to-amber-400 px-3 py-1 text-xs font-semibold text-slate-950 shadow-lg shadow-emerald-500/20">
@@ -1330,161 +1430,118 @@ export default function App() {
               </div>
             </div>
 
-            <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
-              <div className="rounded-2xl border border-white/10 bg-white/10 p-3 shadow-lg shadow-black/10 backdrop-blur">
-                <div className="text-xs text-white/65">{copy.total}</div>
-                <div className="mt-1 text-xl font-semibold text-white">{schedule.length}</div>
+            <div className="mt-3 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/8 px-3 py-3">
+              <div className="text-sm text-white/75">
+                {activeFilterCount > 0
+                  ? `${activeFilterCount} ${lang === "en" ? "active filter(s)" : "个筛选已启用"}`
+                  : copy.filtersCollapsed}
               </div>
-              <div className="rounded-2xl border border-white/10 bg-white/10 p-3 shadow-lg shadow-black/10 backdrop-blur">
-                <div className="text-xs text-white/65">{copy.showing}</div>
-                <div className="mt-1 text-xl font-semibold text-white">
-                  {filteredSchedule.length} <span className="text-sm font-medium text-white/70">{copy.cards}</span>
-                </div>
-              </div>
-              <div className="rounded-2xl border border-white/10 bg-white/10 p-3 shadow-lg shadow-black/10 backdrop-blur">
-                <div className="text-xs text-white/65">{copy.language}</div>
-                <div className="mt-1 text-xl font-semibold text-white">
-                  {lang === "en" ? copy.english : copy.chinese}
-                </div>
-              </div>
-              <div className="rounded-2xl border border-white/10 bg-white/10 p-3 shadow-lg shadow-black/10 backdrop-blur">
-                <div className="text-xs text-white/65">PT</div>
-                <div className="mt-1 text-xl font-semibold text-white">{copy.pt}</div>
-              </div>
+              <button
+                type="button"
+                onClick={() => setFiltersOpen((prev) => !prev)}
+                className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-slate-950/35 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-950/55"
+              >
+                {filtersOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                {filtersOpen ? copy.hideFilters : copy.showFilters}
+              </button>
             </div>
           </div>
         </header>
 
-        <main className="relative z-10 flex-1 px-4 py-5 sm:px-6">
-          <section className="rounded-3xl border border-white/10 bg-white/10 p-4 shadow-2xl shadow-black/20 backdrop-blur-xl">
-            <div className="flex items-center gap-2">
-              <Filter className="h-4 w-4 text-emerald-300" />
-              <h2 className="text-base font-semibold text-white">{copy.filters}</h2>
-            </div>
-            <p className="mt-1 text-sm text-white/70">{copy.helper}</p>
-
-            <div className="mt-4 grid gap-3">
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                <label className="grid gap-1.5 sm:col-span-2">
-                  <span className="text-xs font-medium uppercase tracking-wide text-white/60">{copy.match}</span>
-                  <div className="relative">
-                    <Trophy className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-emerald-300" />
-                    <select
-                      value={matchQuery}
-                      onChange={(e) => setMatchQuery(e.target.value)}
-                      className="w-full appearance-none rounded-2xl border border-white/10 bg-slate-950/40 py-3 pl-10 pr-10 text-sm text-white outline-none ring-0 transition placeholder:text-white/35 focus:border-emerald-400 focus:bg-slate-950/70 focus:ring-2 focus:ring-emerald-400/30"
-                    >
-                      <option value="">{lang === "en" ? "All matches" : "全部比赛"}</option>
-                      {matches.map((item) => (
-                        <option key={item.id} value={String(item.id)}>
-                          {lang === "en" ? item.match_en : item.match_zh}
-                        </option>
-                      ))}
-                    </select>
-                    <svg className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/45" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-                      <path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                  </div>
-                </label>
-
-                <label className="grid gap-1.5">
-                  <span className="text-xs font-medium uppercase tracking-wide text-white/60">{copy.date}</span>
-                  <div className="relative">
-                    <CalendarDays className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-emerald-300" />
-                    <select
-                      value={dateQuery}
-                      onChange={(e) => setDateQuery(e.target.value)}
-                      className="w-full appearance-none rounded-2xl border border-white/10 bg-slate-950/40 py-3 pl-10 pr-10 text-sm text-white outline-none ring-0 transition placeholder:text-white/35 focus:border-emerald-400 focus:bg-slate-950/70 focus:ring-2 focus:ring-emerald-400/30"
-                    >
-                      <option value="">{lang === "en" ? "All dates" : "全部日期"}</option>
-                      {dates.map((date) => (
-                        <option key={date} value={date}>
-                          {date}
-                        </option>
-                      ))}
-                    </select>
-                    <svg className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/45" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-                      <path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                  </div>
-                </label>
-
-                <label className="grid gap-1.5">
-                  <span className="text-xs font-medium uppercase tracking-wide text-white/60">{copy.time}</span>
-                  <div className="relative">
-                    <Clock3 className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-emerald-300" />
-                    <select
-                      value={timeQuery}
-                      onChange={(e) => setTimeQuery(e.target.value)}
-                      className="w-full appearance-none rounded-2xl border border-white/10 bg-slate-950/40 py-3 pl-10 pr-10 text-sm text-white outline-none ring-0 transition placeholder:text-white/35 focus:border-emerald-400 focus:bg-slate-950/70 focus:ring-2 focus:ring-emerald-400/30"
-                    >
-                      <option value="">{lang === "en" ? "All times" : "全部时间"}</option>
-                      {times.map((time) => (
-                        <option key={time} value={time}>
-                          {time}
-                        </option>
-                      ))}
-                    </select>
-                    <svg className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/45" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-                      <path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                  </div>
-                </label>
-
-                <label className="grid gap-1.5">
-                  <span className="text-xs font-medium uppercase tracking-wide text-white/60">{copy.venue}</span>
-                  <div className="relative">
-                    <MapPin className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-emerald-300" />
-                    <select
-                      value={venueQuery}
-                      onChange={(e) => setVenueQuery(e.target.value)}
-                      className="w-full appearance-none rounded-2xl border border-white/10 bg-slate-950/40 py-3 pl-10 pr-10 text-sm text-white outline-none ring-0 transition placeholder:text-white/35 focus:border-emerald-400 focus:bg-slate-950/70 focus:ring-2 focus:ring-emerald-400/30"
-                    >
-                      <option value="">{lang === "en" ? "All venues" : "全部场馆"}</option>
-                      {venues.map((venue) => (
-                        <option key={venue} value={venue}>
-                          {venue}
-                        </option>
-                      ))}
-                    </select>
-                    <svg className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/45" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-                      <path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                  </div>
-                </label>
-
-                <label className="grid gap-1.5">
-                  <span className="text-xs font-medium uppercase tracking-wide text-white/60">{copy.round}</span>
-                  <select
-                    value={roundQuery}
-                    onChange={(e) => setRoundQuery(e.target.value)}
-                    className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-3 py-3 text-sm outline-none ring-0 transition focus:border-slate-300 focus:bg-white"
-                  >
-                    <option value="">{copy.allRounds}</option>
-                    {rounds.map((round) => (
-                      <option key={round} value={round}>
-                        {roundLabels[lang][round] ?? round}
-                      </option>
-                    ))}
-                  </select>
-                </label>
+        <main className="relative z-10 flex-1 px-4 py-4 sm:px-6">
+          {filtersOpen ? (
+            <section className="rounded-3xl border border-white/10 bg-white/10 p-4 shadow-2xl shadow-black/20 backdrop-blur-xl">
+              <div className="flex items-center gap-2">
+                <Filter className="h-4 w-4 text-emerald-300" />
+                <h2 className="text-base font-semibold text-white">{copy.filters}</h2>
               </div>
+              <p className="mt-1 text-sm text-white/70">{copy.helper}</p>
 
-              <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
-                <div className="text-sm text-white/70">
-                  {filteredSchedule.length} / {schedule.length} {lang === "en" ? "matches" : "场比赛"}
+              <div className="mt-4 grid gap-4">
+                <div className="sm:hidden">
+                  <MobileMatchInput value={matchQuery} onChange={setMatchQuery} placeholder={copy.searchMatch} />
                 </div>
-                <button
-                  type="button"
-                  onClick={clearFilters}
-                  className="inline-flex items-center gap-2 rounded-2xl border border-emerald-300/30 bg-gradient-to-r from-emerald-400 to-amber-400 px-4 py-2.5 text-sm font-semibold text-slate-950 shadow-lg shadow-emerald-500/20 transition hover:brightness-105"
-                >
-                  <RefreshCcw className="h-4 w-4" />
-                  {copy.clear}
-                </button>
+
+                <div className="hidden sm:grid sm:grid-cols-2 sm:gap-3">
+                  <label className="grid gap-1.5 sm:col-span-2">
+                    <FieldLabel>{copy.match}</FieldLabel>
+                    <DesktopSelect
+                      icon={Trophy}
+                      value={matchQuery}
+                      onChange={setMatchQuery}
+                      options={desktopMatchOptions}
+                      placeholder={copy.allMatches}
+                    />
+                  </label>
+
+                  <label className="grid gap-1.5">
+                    <FieldLabel>{copy.date}</FieldLabel>
+                    <DesktopSelect
+                      icon={CalendarDays}
+                      value={dateQuery}
+                      onChange={setDateQuery}
+                      options={mobileDateOptions}
+                      placeholder={copy.allDates}
+                    />
+                  </label>
+
+                  <label className="grid gap-1.5">
+                    <FieldLabel>{copy.time}</FieldLabel>
+                    <DesktopSelect
+                      icon={Clock3}
+                      value={timeQuery}
+                      onChange={setTimeQuery}
+                      options={mobileTimeOptions}
+                      placeholder={copy.allTimes}
+                    />
+                  </label>
+
+                  <label className="grid gap-1.5">
+                    <FieldLabel>{copy.venue}</FieldLabel>
+                    <DesktopSelect
+                      icon={MapPin}
+                      value={venueQuery}
+                      onChange={setVenueQuery}
+                      options={mobileVenueOptions}
+                      placeholder={copy.allVenues}
+                    />
+                  </label>
+
+                  <label className="grid gap-1.5">
+                    <FieldLabel>{copy.round}</FieldLabel>
+                    <DesktopSelect
+                      icon={Trophy}
+                      value={roundQuery}
+                      onChange={setRoundQuery}
+                      options={mobileRoundOptions}
+                      placeholder={copy.allRounds}
+                    />
+                  </label>
+                </div>
+
+                <div className="sm:hidden grid gap-4">
+                  <MobileChipGroup label={copy.date} value={dateQuery} onChange={setDateQuery} options={mobileDateOptions} allLabel={copy.allDates} />
+                  <MobileChipGroup label={copy.time} value={timeQuery} onChange={setTimeQuery} options={mobileTimeOptions} allLabel={copy.allTimes} />
+                  <MobileChipGroup label={copy.venue} value={venueQuery} onChange={setVenueQuery} options={mobileVenueOptions} allLabel={copy.allVenues} />
+                  <MobileChipGroup label={copy.round} value={roundQuery} onChange={setRoundQuery} options={mobileRoundOptions} allLabel={copy.allRounds} />
+                </div>
+
+                <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
+                  <div className="text-sm text-white/70">
+                    {filteredSchedule.length} / {schedule.length} {lang === "en" ? "matches" : "场比赛"}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={clearFilters}
+                    className="inline-flex items-center gap-2 rounded-2xl border border-emerald-300/30 bg-gradient-to-r from-emerald-400 to-amber-400 px-4 py-2.5 text-sm font-semibold text-slate-950 shadow-lg shadow-emerald-500/20 transition hover:brightness-105"
+                  >
+                    <RefreshCcw className="h-4 w-4" />
+                    {copy.clear}
+                  </button>
+                </div>
               </div>
-            </div>
-          </section>
+            </section>
+          ) : null}
 
           <section className="mt-5 space-y-3">
             {filteredSchedule.length === 0 ? (
@@ -1562,13 +1619,13 @@ export default function App() {
             )}
           </section>
         </main>
-      </div>
 
-      <footer className="px-4 pb-8 pt-2 text-center text-xs text-white/65 sm:px-6">
-        {lang === "en"
-          ? "Built as a static schedule page with no backend or fetch requests."
-          : "这是一个静态赛程页面，不包含后端或数据请求。"}
-      </footer>
+        <footer className="px-4 pb-8 pt-2 text-center text-xs text-white/65 sm:px-6">
+          {lang === "en"
+            ? "Built as a static schedule page with no backend or fetch requests."
+            : "这是一个静态赛程页面，不包含后端或数据请求。"}
+        </footer>
+      </div>
     </div>
   );
 }
