@@ -1,3 +1,4 @@
+
 import React, { useMemo, useState } from "react";
 import {
   CalendarDays,
@@ -1181,7 +1182,7 @@ const roundLabels = {
 
 const ui = {
   en: {
-    title: "2026 FIFA World Cup Schedule",
+    title: "2026 World Cup",
     subtitle: "Static bilingual schedule. Times are shown in Pacific Time (PT).",
     language: "Language",
     english: "English",
@@ -1212,7 +1213,7 @@ const ui = {
     allMatches: "All matches",
   },
   zh: {
-    title: "2026年国际足联世界杯赛程",
+    title: "2026世界杯",
     subtitle: "静态双语赛程表，时间均为太平洋时间（PT）。",
     language: "语言",
     english: "英文",
@@ -1396,127 +1397,145 @@ export default function App() {
       <div className="relative mx-auto flex min-h-screen w-full max-w-4xl flex-col">
         <header className="sticky top-0 z-30 border-b border-white/10 bg-slate-950/90 backdrop-blur-xl">
           <div className="px-4 py-3 sm:px-6">
-            <div className="flex items-center justify-between gap-3">
-              <div className="shrink-0 rounded-2xl border border-white/10 bg-white/10 p-1 shadow-lg shadow-black/20 backdrop-blur">
-                <div className="flex items-center gap-1">
-                  <button
-                    type="button"
-                    onClick={() => setLang("en")}
-                    className={`rounded-xl px-3 py-2 text-sm font-medium transition ${lang === "en" ? "bg-emerald-400 text-slate-950 shadow-sm" : "text-white/60"}`}
-                    aria-pressed={lang === "en"}
-                  >
-                    <Languages className="mr-1 inline h-4 w-4" />
-                    {copy.english}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setLang("zh")}
-                    className={`rounded-xl px-3 py-2 text-sm font-medium transition ${lang === "zh" ? "bg-amber-400 text-slate-950 shadow-sm" : "text-white/60"}`}
-                    aria-pressed={lang === "zh"}
-                  >
-                    <Languages className="mr-1 inline h-4 w-4" />
-                    {copy.chinese}
-                  </button>
-                </div>
-              </div>
-            </div>
+            <h1 className="text-xl font-semibold tracking-tight text-white">
+              {lang === "en" ? "2026 World Cup" : "2026世界杯"}
+            </h1>
           </div>
         </header>
 
         <main className="relative z-10 flex-1 px-4 py-4 sm:px-6">
-          {filtersOpen ? (
-            <section className="rounded-3xl border border-white/10 bg-white/10 p-4 shadow-2xl shadow-black/20 backdrop-blur-xl">
-              <div className="flex items-center gap-2">
-                <Filter className="h-4 w-4 text-emerald-300" />
-                <h2 className="text-base font-semibold text-white">{copy.filters}</h2>
+          <section className="rounded-3xl border border-white/10 bg-white/10 shadow-2xl shadow-black/20 backdrop-blur-xl overflow-hidden">
+            <button
+              type="button"
+              onClick={() => setFiltersOpen((open) => !open)}
+              className="flex w-full items-center justify-between gap-3 px-4 py-4 text-left"
+              aria-expanded={filtersOpen}
+            >
+              <div className="flex items-start gap-2">
+                <Filter className="mt-0.5 h-4 w-4 shrink-0 text-emerald-300" />
+                <div>
+                  <h2 className="text-base font-semibold text-white">{copy.filters}</h2>
+                  <p className="mt-1 text-sm text-white/70">
+                    {filtersOpen ? copy.helper : copy.filtersCollapsed}
+                  </p>
+                </div>
               </div>
-              <p className="mt-1 text-sm text-white/70">{copy.helper}</p>
+              {filtersOpen ? <ChevronUp className="h-5 w-5 text-white/70" /> : <ChevronDown className="h-5 w-5 text-white/70" />}
+            </button>
 
-              <div className="mt-4 grid gap-4">
-                <div className="sm:hidden">
-                  <MobileMatchInput value={matchQuery} onChange={setMatchQuery} placeholder={copy.searchMatch} />
-                </div>
-
-                <div className="hidden sm:grid sm:grid-cols-2 sm:gap-3">
-                  <label className="grid gap-1.5 sm:col-span-2">
-                    <FieldLabel>{copy.match}</FieldLabel>
-                    <DesktopSelect
-                      icon={Trophy}
-                      value={matchQuery}
-                      onChange={setMatchQuery}
-                      options={desktopMatchOptions}
-                      placeholder={copy.allMatches}
-                    />
-                  </label>
-
-                  <label className="grid gap-1.5">
-                    <FieldLabel>{copy.date}</FieldLabel>
-                    <DesktopSelect
-                      icon={CalendarDays}
-                      value={dateQuery}
-                      onChange={setDateQuery}
-                      options={mobileDateOptions}
-                      placeholder={copy.allDates}
-                    />
-                  </label>
-
-                  <label className="grid gap-1.5">
-                    <FieldLabel>{copy.time}</FieldLabel>
-                    <DesktopSelect
-                      icon={Clock3}
-                      value={timeQuery}
-                      onChange={setTimeQuery}
-                      options={mobileTimeOptions}
-                      placeholder={copy.allTimes}
-                    />
-                  </label>
-
-                  <label className="grid gap-1.5">
-                    <FieldLabel>{copy.venue}</FieldLabel>
-                    <DesktopSelect
-                      icon={MapPin}
-                      value={venueQuery}
-                      onChange={setVenueQuery}
-                      options={mobileVenueOptions}
-                      placeholder={copy.allVenues}
-                    />
-                  </label>
-
-                  <label className="grid gap-1.5">
-                    <FieldLabel>{copy.round}</FieldLabel>
-                    <DesktopSelect
-                      icon={Trophy}
-                      value={roundQuery}
-                      onChange={setRoundQuery}
-                      options={mobileRoundOptions}
-                      placeholder={copy.allRounds}
-                    />
-                  </label>
-                </div>
-
-                <div className="sm:hidden grid gap-4">
-                  <MobileChipGroup label={copy.date} value={dateQuery} onChange={setDateQuery} options={mobileDateOptions} allLabel={copy.allDates} />
-                  <MobileChipGroup label={copy.time} value={timeQuery} onChange={setTimeQuery} options={mobileTimeOptions} allLabel={copy.allTimes} />
-                  <MobileChipGroup label={copy.venue} value={venueQuery} onChange={setVenueQuery} options={mobileVenueOptions} allLabel={copy.allVenues} />
-                  <MobileChipGroup label={copy.round} value={roundQuery} onChange={setRoundQuery} options={mobileRoundOptions} allLabel={copy.allRounds} />
-                </div>
-
-                <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
-                  <div className="text-sm text-white/70">
-                    {filteredSchedule.length} / {schedule.length} {lang === "en" ? "matches" : "场比赛"}
+            {filtersOpen ? (
+              <div className="border-t border-white/10 px-4 pb-4 pt-4">
+                <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/10 bg-slate-950/30 p-2">
+                  <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-white/60">
+                    <Languages className="h-4 w-4 text-emerald-300" />
+                    {copy.language}
                   </div>
-                  <button
-                    type="button"
-                    onClick={clearFilters}
-                    className="inline-flex items-center gap-2 rounded-2xl border border-emerald-300/30 bg-gradient-to-r from-emerald-400 to-amber-400 px-4 py-2.5 text-sm font-semibold text-slate-950 shadow-lg shadow-emerald-500/20 transition hover:brightness-105"
-                  >
-                    <RefreshCcw className="h-4 w-4" />
-                    {copy.clear}
-                  </button>
+                  <div className="flex items-center gap-1 rounded-2xl border border-white/10 bg-white/10 p-1">
+                    <button
+                      type="button"
+                      onClick={() => setLang("en")}
+                      className={`rounded-xl px-3 py-2 text-sm font-medium transition ${lang === "en" ? "bg-emerald-400 text-slate-950 shadow-sm" : "text-white/60"}`}
+                      aria-pressed={lang === "en"}
+                    >
+                      {copy.english}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setLang("zh")}
+                      className={`rounded-xl px-3 py-2 text-sm font-medium transition ${lang === "zh" ? "bg-amber-400 text-slate-950 shadow-sm" : "text-white/60"}`}
+                      aria-pressed={lang === "zh"}
+                    >
+                      {copy.chinese}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="grid gap-4">
+                  <div className="sm:hidden">
+                    <MobileMatchInput value={matchQuery} onChange={setMatchQuery} placeholder={copy.searchMatch} />
+                  </div>
+
+                  <div className="hidden sm:grid sm:grid-cols-2 sm:gap-3">
+                    <label className="grid gap-1.5 sm:col-span-2">
+                      <FieldLabel>{copy.match}</FieldLabel>
+                      <DesktopSelect
+                        icon={Trophy}
+                        value={matchQuery}
+                        onChange={setMatchQuery}
+                        options={desktopMatchOptions}
+                        placeholder={copy.allMatches}
+                      />
+                    </label>
+
+                    <label className="grid gap-1.5">
+                      <FieldLabel>{copy.date}</FieldLabel>
+                      <DesktopSelect
+                        icon={CalendarDays}
+                        value={dateQuery}
+                        onChange={setDateQuery}
+                        options={mobileDateOptions}
+                        placeholder={copy.allDates}
+                      />
+                    </label>
+
+                    <label className="grid gap-1.5">
+                      <FieldLabel>{copy.time}</FieldLabel>
+                      <DesktopSelect
+                        icon={Clock3}
+                        value={timeQuery}
+                        onChange={setTimeQuery}
+                        options={mobileTimeOptions}
+                        placeholder={copy.allTimes}
+                      />
+                    </label>
+
+                    <label className="grid gap-1.5">
+                      <FieldLabel>{copy.venue}</FieldLabel>
+                      <DesktopSelect
+                        icon={MapPin}
+                        value={venueQuery}
+                        onChange={setVenueQuery}
+                        options={mobileVenueOptions}
+                        placeholder={copy.allVenues}
+                      />
+                    </label>
+
+                    <label className="grid gap-1.5">
+                      <FieldLabel>{copy.round}</FieldLabel>
+                      <DesktopSelect
+                        icon={Trophy}
+                        value={roundQuery}
+                        onChange={setRoundQuery}
+                        options={mobileRoundOptions}
+                        placeholder={copy.allRounds}
+                      />
+                    </label>
+                  </div>
+
+                  <div className="sm:hidden grid gap-4">
+                    <MobileChipGroup label={copy.date} value={dateQuery} onChange={setDateQuery} options={mobileDateOptions} allLabel={copy.allDates} />
+                    <MobileChipGroup label={copy.time} value={timeQuery} onChange={setTimeQuery} options={mobileTimeOptions} allLabel={copy.allTimes} />
+                    <MobileChipGroup label={copy.venue} value={venueQuery} onChange={setVenueQuery} options={mobileVenueOptions} allLabel={copy.allVenues} />
+                    <MobileChipGroup label={copy.round} value={roundQuery} onChange={setRoundQuery} options={mobileRoundOptions} allLabel={copy.allRounds} />
+                  </div>
+
+                  <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
+                    <div className="text-sm text-white/70">
+                      {filteredSchedule.length} / {schedule.length} {lang === "en" ? "matches" : "场比赛"}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={clearFilters}
+                      className="inline-flex items-center gap-2 rounded-2xl border border-emerald-300/30 bg-gradient-to-r from-emerald-400 to-amber-400 px-4 py-2.5 text-sm font-semibold text-slate-950 shadow-lg shadow-emerald-500/20 transition hover:brightness-105"
+                    >
+                      <RefreshCcw className="h-4 w-4" />
+                      {copy.clear}
+                    </button>
+                  </div>
                 </div>
               </div>
-            </section>
-          ) : null}
+            ) : null}
+          </section>
 
           <section className="mt-5 space-y-3">
             {filteredSchedule.length === 0 ? (
